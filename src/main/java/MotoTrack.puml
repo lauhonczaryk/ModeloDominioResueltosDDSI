@@ -1,0 +1,182 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Moto {
+    -marca : String
+    -modelo: String
+    -año: Int
+   - patente: Long
+   - fotografias: List<Fotografia>
+   - capacidadTanque: Double
+}
+class Fotografia {
+    - pathImagen: String
+    - descripcion: String
+}
+class Camino {
+    - nombre: String
+    - descripcion : String
+    - fotografias: List<Fotografia>
+    - nivelDificultad: NivelDificultad
+    - terreno: List<TipoTerreno>
+    - duracionHoras: Int
+    - duracionDias: int
+    -distanciaTotal: Int
+    - puntoPartido: String
+    - puntoLlegada: String
+}
+
+enum NivelDificultad {
+    PRINICPIANTE,
+    INTERMEDIO,
+    AVANZADO,
+    EXTREMO
+}
+class TipoTerreno {
+    terreno: String
+}
+
+class Motoquero {
+- nombre: String
+    - motos: List<Motos>
+    - historialCategorias: List<EstadoCategorias>
+    - categoriaActual: Categoria
+    - kmsIniciales
+    -contacto: String
+    + categoriaActual(): Categoria
+    + actualizarKilometraje(): void
+
+   }
+
+
+class PuntoInteres {
+    - nombre: TipoPuntoInteres
+    - descripcion: String
+    - ubicacion: String
+    - fotografias: List<Fotografia>
+}
+
+class TipoPuntoInteres{
+    -nombre: String
+}
+
+class PlanificacionViaje {
+    - motoquero: Motoquero
+    - moto: Motoquero
+    - dias: List<LocalDateTime>
+    - intereses: List<TipoPuntoInteres>
+    - mensaje: MensajeRecomendacion
+    - notificacion: Notificacion
+    - feedback: FormularioFeedback
+}
+
+class MensajeRecomendacion {
+    - lugaresAVisitar: List<PuntoInteres>
+    - precauciones: List<String>
+    - recomendaciones: Recomendacion
+    - sugerenciasEquipamiento: List<SugerenciaEquipamiento>
+    - adapterChatGPT: IAdapterChatGPT4
+    - adapterClima: IAdapterClima
+}
+
+class Recomendacion {
+    - actividad: String
+    - tipsSeguridad: List<String>
+}
+
+class SugerenciaEquipamiento {
+    - item: String
+    - descripcion: String
+}
+
+interface IAdapterChatGPT4{
+    + consultarRecomendaciones(PlanificacionViaje viaje): Recomendacion
+    + consultarSugerencia(PlanificacionViaje viaje): SugerenciaEquipamiento
+}
+class AdapterChatGPT4 implements IAdapterChatGPT4 {
+    + consultarRecomendaciones(PlanificacionViaje viaje)
+       + consultarSugerencia(PlanificacionViaje viaje): SugerenciaEquipamiento
+
+}
+class ChatGPT4 {
+    + armarRecomendaciones(PlanificacionViaje viaje): Recomendacion
+    + armarSugerencias(PlanificacionViaje viaje): PlanificacionViaje
+}
+
+interface IAdapterClima {
+    + consultarClima (List<LocalDateTime> fechas): Clima
+}
+
+class AdapterClima implements IAdapterClima {
+     + consultarClima (List<LocalDateTime> fechas): Clima
+
+}
+class AccuWeather {
+    + clima(List<LocalDateTime> fechas): Clima
+}
+
+class Windguru {
+    + clima(List<LocalDateTime> fechas): Clima
+}
+
+class Clima {
+    -dia:LocalDateTime
+    - temperatura: Double
+    - precipitaciones: Double
+    - humedad: Double
+}
+
+interface Notificacion {
+    - enviar(Motoquero, MensajeRecomendacion)
+}
+
+class Notificacador implements Notificacion{
+        - enviar(Motoquero, MensajeRecomendacion)
+
+}
+
+class FormularioFeedback {
+    - escala: Int
+    - preguntas: List<Pregunta>
+
+}
+
+class Pregunta {
+   - tipo: TipoPregunta
+   - pregunta: String
+   - opciones: List<String>
+}
+
+class TipoPregunta {
+    - tipo: String
+}
+
+Motoquero --> Categoria
+Camino --> NivelDificultad
+Motoquero --> Moto
+Camino --> TipoTerreno
+PuntoInteres --> TipoPuntoInteres
+Motoquero --> Fotografia
+Camino--> Fotografia
+PuntoInteres --> Fotografia
+MensajeRecomendacion --> Recomendacion
+MensajeRecomendacion --> SugerenciaEquipamiento
+PlanificacionViaje  --> Motoquero
+AdapterChatGPT4 --> ChatGPT4
+AdapterClima --> AccuWeather
+AdapterClima --> Windguru
+MensajeRecomendacion --> IAdapterClima
+MensajeRecomendacion --> IAdapterChatGPT4
+IAdapterClima --> Clima
+PlanificacionViaje --> Notificacion
+PlanificacionViaje --> MensajeRecomendacion
+PlanificacionViaje --> FormularioFeedback
+
+enum Categoria {
+    PRINICPIANTE,
+    INTERMEDIO,
+    AVANZADO,
+    EXTREMO
+}
+
+@enduml

@@ -1,0 +1,119 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Organizacion {
+    nombre: String
+    razonSocial: String
+    industria: Industria
+    descripcion: String
+    logo: String
+    redesSociales: List<URLRedSocial>
+}
+
+class Industria {
+    nombre: String
+}
+class URLRedSocial {
+    nombreRedSocial: RedSocial
+    URL: String
+}
+class RedSocial {
+    nombre: String
+}
+
+class CreadorContenido {
+    nombre: String
+    apellido: String
+    documento: String
+    nacionalidad: Nacionalidad
+    fechaNacimiento: LocalDateTime
+    correo: String
+    telefono: String
+    redesSociales: List<URLRedSocial>
+    portofolio: List<CampaniaRealizada>
+}
+class Nacionalidad {
+    nombre: String
+}
+
+class CampaniaRealizada {
+    realizadaPor:CreadorContenido
+    fechaPublicacion: LocalDateTime
+    industria: Industria
+    redesSocialesAbarcadas: List<RedSocial>
+    tipoContenidoGenerado: List<TipoContenido>
+}
+
+class TipoContenido {
+    tipo: String
+}
+
+class CampaniaPublicada {
+    organizacion: Organizacion
+    fechaEntrega: LocalDateTime
+    cantVideosEsperados: Integer
+    productoAPromocionar: Producto
+    tiposVideoBuscados: List<TipoContenido>
+    redesSocialesAbarcar: List<RedSocial>
+    criterios: List<CriterioCampania>
+    postulados: List<Postulacion>
+    candidatoElegido: CreadorContenido
+    plazoCumplido: Boolean
+
+}
+
+
+class Producto {
+    nombre: String
+    descripcion: String
+    fotos: List<String>
+}
+interface Criterio {
+    calcularScoring(CreadorContenido creador): Double
+}
+
+class MasCampanias implements Criterio{
+    calcularScoring(CreadorContenido creador): Double
+}
+
+class ConRedesPedidas implements Criterio{
+    calcularScoring(CreadorContenido creador): Double
+}
+
+class CantCampaniasMayorA implements Criterio{
+    cantidadsPedida: Integer
+    calcularScoring(CreadorContenido creador): Double
+}
+
+class CriterioCampania {
+    criterio: Criterio
+    peso: Double
+}
+
+
+class Postulacion {
+    postulado: CreadorContenido
+    campania: CampaniaPublicada
+    fechaPostulacion: LocalDateTime
+    fueElegido: Boolean
+    scoring: Double
+}
+
+Organizacion --> Industria
+Organizacion --> URLRedSocial
+CreadorContenido --> URLRedSocial
+CreadorContenido --> Nacionalidad
+URLRedSocial -->  RedSocial
+CampaniaRealizada --> RedSocial
+CampaniaRealizada --> Industria
+CampaniaRealizada --> TipoContenido
+CampaniaPublicada  --> Organizacion
+CampaniaPublicada  --> Producto
+CampaniaPublicada  --> TipoContenido
+CampaniaPublicada  --> RedSocial
+Postulacion  --> CampaniaPublicada
+Postulacion  --> CreadorContenido
+CampaniaPublicada --> Postulacion
+CampaniaPublicada --> CriterioCampania
+CriterioCampania  --> Criterio
+@enduml

@@ -1,0 +1,42 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Hogar {
+    direccion: Direccion
+    telefono: String
+    id: String
+    fechaAlta: LocalDateTime
+    riesgoRoboAceptable: GradoRiesgo
+}
+class Direccion {
+    calle: String
+    numero: Integer
+    localidad: String
+    Provincia: String
+}
+
+class MedicionesRobo {
+    nivelPresenciaHumana: Double
+    gradoConfiabilidad: Double
+    riesgo: GradoRiesgo
+    hogar: Hogar
+    fechaHora: LocalDateTime
+}
+
+class DetectorRobo {
+    +detectarRobo(Hogar hogar, MedicionesRobo datos)
+}
+
+class DetectorIncendio {
+    +detectarIncendio(Hogar hogar, String datoSensorHumo)
+}
+
+enum riesgoRoboAceptable {
+ALTO,
+MEDIO
+BAJO
+}
+
+
+
+@enduml

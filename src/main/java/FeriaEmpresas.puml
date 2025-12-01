@@ -1,0 +1,156 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+
+class Organizacion {
+    -cuit : Double
+    - nombre : String
+    - sector: String
+    -contacto: String
+    -medioContacto : String
+    - logo: String
+    - descripcion : String
+    }
+
+class Pago {
+   -fechaHora: LocalDateTime
+   -organizacion: Long
+   }
+
+  interface AdapterProveedorCobros {
+     - provedor: Proveedor
+     - cobrar(EmpresaEnEvento empresa)
+     }
+
+ class Proveedor implements AdapterProveedorCobros{
+    - cobrar(EmpresaEnEvento empresa)
+ }
+
+class Evento {
+    -fecha: LocalDateTime
+    -lugar: String
+    -nombre: String
+}
+
+class EmpresaExenta{
+    cuit: Long
+}
+
+class EmpresaEnEvento {
+    - org : Organizacion
+    -evento : Evento
+    -pago: Pago
+    - accion: Command
+    + exentaDePago() :Boolean
+    - listaInteres: List<EstudianteEnEvento>
+    + agregarLista(EstudianteEnEvento e)
+    + seleccionarAccion(EstudianteEnEvento e, accion)
+}
+
+interface Command {
+    - estudiante: EstudianteEnEvento
+    + ejecutar()
+}
+
+class EnviarMail implements Command {
+    - enviadorMail: EnviadorMail
+    + ejecutar()
+}
+
+class EnviarWpp implements Command {
+    - enviadorWpp: EnviadorWpp
+    +ejecutar()
+}
+
+class EnviadorMail {
+    + enviarMail(String mailCorrespondiente)
+}
+
+class EnviadorWpp {
+    + enviarWpp(String telefonoEstudiante)
+}
+
+class TipoSponsor {
+    - tipo: String
+    - metrosCuadradosStand
+    - valor
+}
+
+abstract class Estudiante {
+    - dni: String
+    - apellido: String
+    - nombre: String
+    - legajo: String
+    - fechaNacimiento: Date
+    - email: String
+    - telefono: String
+    - sectoresInteres : List<Sector>
+    }
+
+class EstudianteExterno {
+    -entidadEducativa : String
+}
+
+class EstudianteInterno {
+    -dni : String
+    -legajo: String
+    -datosExternos : DatosExterno
+}
+
+class Sector {
+    - sector: String
+}
+
+class EstudianteEnEvento {
+    -estudiante: Estudiante
+    -evento : Evento
+    -QR : String
+}
+
+interface ServicioDatosEstudiante {
+    + obtenerDatos(String dni, String Legajo) : Estudiante
+}
+
+class AdapterServicioExterno {
+    - servicio : ServicioExterno
+    + AdapterServicioExterno(ServicioExterno servicio)
+}
+
+class ServicioExterno {
+    - consultarAlumno(dni, legajo): DatosExterno
+}
+
+class DatosExterno {
+  - apellido: String
+  - nombre: String
+  - dni: String
+  - legajo: String
+  - fechaNacimiento: Date
+  - email: String
+  - telefono: String
+}
+
+EmpresaEnEvento *-- TipoSponsor
+
+EstudianteInterno --> ServicioDatosEstudiante
+ServicioDatosEstudiante <|.. AdapterServicioExterno
+AdapterServicioExterno --> ServicioExterno
+ServicioExterno --> DatosExterno
+
+Estudiante <|-- EstudianteExterno
+Estudiante <|-- EstudianteInterno
+
+Evento --> EmpresaEnEvento
+Evento --> EstudianteEnEvento
+Organizacion --> EmpresaEnEvento
+Estudiante --> EstudianteEnEvento
+EmpresaEnEvento --> Pago
+Evento --> EmpresaExenta
+Pago --> AdapterProveedorCobros
+Estudiante --> Sector
+EnviarMail --> EnviadorMail
+EnviarWpp --> EnviadorWpp
+EmpresaEnEvento --> Command
+
+
+@enduml

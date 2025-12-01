@@ -1,0 +1,115 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Establecimiento {
+    nombre: String
+    direccion: String
+    maquinas: List<Maquinas>
+}
+
+class Jugador {
+   - nombre: Jugador
+   - membresias: List<Membresia>
+   - puntosGanadosMes: Double
+   - duracionPromedioPartidas: Double
+   + membresiaActiva(): Membresia
+   + recargarCredito(): Void
+}
+
+class Tarjeta {
+    - membresia: Membresia
+    - jugador: Jugador
+    - creditos: Double
+    + actualizarCreditos(): void
+}
+
+abstract class Membresia {
+    - jugador: Jugador
+    - activa: Boolean
+    - creditos: Double
+    - puntos: Double
+    - partidas: List<Partida>
+     # {abstract} recargarCredito(): Void
+    # {abstract} sumarPuntos(puntos Int): void
+    # {abstract} darDeBaja(): void
+}
+
+class Basica extends Membresia {
+    + CargarCreditos(Double cantCredito): Double
+    + ConsumirCreditos(Double cantCredito): Double
+}
+
+class Gold extends Membresia {
+        - porcentajeAumento: Int
+        - descuentoFijoCreditos : Int
+    + CargarCreditos(Double cantCredito): Double
+    + ConsumirCreditos(Double cantCredito): Double
+}
+
+class Platinum extends Membresia {
+    + CargarCreditos(Double cantCredito): Double
+    + ConsumirCreditos(Double cantCredito): Double
+}
+
+class Juego{
+     -nombre: NombreJuego
+     -puntosQueSuma: Double
+}
+
+class Maquina {
+    - id: Long
+   -  fechaFabricacion: LocalDateTime
+   - fechaUltimaRevision: LocalDateTime
+   - juego: Juego
+}
+
+class Partida {
+    - jugador: Jugador
+    - juego: Juego
+    -fechaHora: LocalDateTime
+    - duracion: Double
+    - maquina: Maquina
+    - adapter: IAdapterSWJuego
+    + RegistrarPartida()
+    + CreditosSuficientes(): Boolean
+    + ActualizarCreditos(): Void
+}
+
+class Canje {
+    - jugador: Jugador
+    - premio: Premio
+    - tipoCanje: String
+    - despacador: IDespachadorEnvios
+}
+
+interface IDespachadorEnvios {
+    + enviarPedido(List<Map<String, Object>>)
+}
+
+class DespachadorEnvios implements IDespachadorEnvios{
+    + proveedor: EnviosYa
+    + enviarPedido(List<Map<String, Object>>)
+}
+
+class EnviosYa {
+    + despachar()
+}
+
+class Premio {
+    - nombre: String
+    - puntosQueCuesta: Double
+}
+
+Jugador --> Membresia
+Membresia --> Jugador
+Maquina --> Juego
+Tarjeta --> Membresia
+Tarjeta --> Jugador
+Partida --> Tarjeta
+Partida --> Juego
+AdapterSWJuego --> SoftwareJuego
+Partida --> IAdapterSWJuego
+DespachadorEnvios --> EnviosYa
+Canje --> IDespachadorEnvios
+IAdapterSWJuego --> DTOFinalizacionPartida
+@enduml

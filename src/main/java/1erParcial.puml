@@ -1,0 +1,199 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam packageStyle rectangle
+
+package "Servicio de Alertas y Reomendaciones" {
+
+class Evento {
+    tipoEvento: TipoEvento
+    fechaInicio: LocalDateTime
+    fechaFin: LocalDateTime
+    nivelSeveridad: NivelSeveridad
+    zonasAfectadas:List<Zona>
+}
+
+class ProcesadorEvento {
+    +procesarEvento(Evento evento): void
+}
+
+interface AccionadorEventoClimatico {
+    +accionarFrente(Evento evento): void
+}
+
+
+
+class TipoEvento {
+    nombre: String
+}
+
+enum NivelSeveridad {
+    ALTO, CRITICA, EXTREMA
+}
+
+class Zona {
+    cord: Coordenada
+    radioKm: Double
+    barrio: String
+}
+
+class GeneradorRecomendacion implements AccionadorEventoClimatico{
+     +accionarFrente(Evento evento): void
+}
+
+interface IAdapterChatGPT {
+    mejorarTexto(String reco): String
+}
+
+class AdapterChatGPT implements IAdapterChatGPT{
+chat: ChatGPT
+    mejorarTexto(String reco): String
+}
+
+class ChatGPT {
+    enriquecerTexto(String reco): String
+}
+
+class NotificadorAlertasCiudadanos implements AccionadorEventoClimatico {
+ notificadores: List<Notificador>
+ +accionarFrente(Evento evento): void
+}
+
+interface INotificador {
+    +enviar(String mensaje, String contacto): void
+}
+
+class NotificadorMail implements INotificador {
+mail: SMTP
+   +enviar(String mensaje, String contacto): void
+}
+
+class NotificadorPush implements INotificador {
+   +enviar(String mensaje, String contacto): void
+}
+
+class SMTP {
+    +enviarMensaje(String mensaje, String contacto): void
+
+}
+
+class NotificarEmergenciaOrganismosExternos implements AccionadorEventoClimatico{
+    organismos: List<OrganismoExterno>
+     +accionarFrente(Evento evento): void
+}
+
+class OrganismoExterno {
+    callback: String
+    + notificarOcurrencia(Evento evento): void
+}
+
+class ActivadorAlarmas implements AccionadorEventoClimatico {
+    estaciones: List<EstacionInteligente>
+     +accionarFrente(Evento evento): void
+}
+
+interface IAdapterServicioEstaciones {
+    + activarAlarmas(Estacion estacion)
+}
+
+class EstacionInteligente {
+    id: String
+    zona: Zona
+}
+
+class AdapterServicioEstaciones implements IAdapterServicioEstaciones {
+       servicio: ServicioEstaciones
+     + activarAlarmas(Estacion estacion)
+}
+
+class ServicioEstaciones {
+    +activar(String idEstacion): void
+}
+
+interface IAdapterServicioCiudadanos {
+    ciudadanosCercaDe(Zona): List<Ciudadano>
+}
+
+class AdapterServicioCiudadanos implements IAdapterServicioCiudadanos {
+       servicio: ServicioCiudadanos
+     ciudadanosCercaDe(Zona): List<Ciudadano>
+}
+
+class ServicioCiudadanos {
+    +encontrarCiudadanos(ZonaDTO zona): List<CiudadanoDTO>
+}
+
+class Coordenada {
+    lon: String
+    lat: String
+}
+}
+
+package "Servicio Feedback Ciudadano" {
+
+class Cuestionario {
+    preguntas: List<Pregunta>
+}
+
+class Pregunta {
+    tipo: TipoPregunta
+    texto: String
+    opciones: List<OpcionPregunta>
+}
+
+class OpcionPregunta {
+    enunciado: String
+}
+
+enum TipoPregunta {
+    SINGLE_CHOICE,
+    MULTIPLE_CHOICE,
+    LIBRE
+}
+
+class AccionRealizable {
+    accion: String
+}
+
+class FeedbackDado {
+    idCiudadano: String
+    calificacion: Integer
+    respuestas: List<Respuesta>
+    accionesRealizadas: List<AccionRealizable>
+}
+class Respuesta {
+    pregunta: Pregunta
+    respuesta: texto
+    opcionesSeleccionadas: List<OpcionPregunta>
+}
+
+}
+
+
+FeedbackDado --> Pregunta
+FeedbackDado --> Respuesta
+FeedbackDado --> AccionRealizable
+Pregunta --> TipoPregunta
+Cuestionario --> Pregunta
+Respuesta --> Pregunta
+Pregunta --> OpcionPregunta
+
+Evento --> Zona
+Evento --> NivelSeveridad
+Evento --> TipoEvento
+ProcesadorEvento --> AccionadorEventoClimatico
+NotificadorAlertasCiudadanos ..> IAdapterServicioCiudadanos
+GeneradorRecomendacion  ..> IAdapterServicioCiudadanos
+NotificadorAlertasCiudadanos ..> INotificador
+NotificarEmergenciaOrganismosExternos --> OrganismoExterno
+AdapterChatGPT -->ChatGPT
+GeneradorRecomendacion ..> IAdapterChatGPT
+NotificadorMail --> SMTP
+ActivadorAlarmas  ..> IAdapterServicioEstaciones
+AdapterServicioEstaciones  --> ServicioEstaciones
+AdapterServicioCiudadanos --> ServicioCiudadanos
+Zona--> Coordenada
+ActivadorAlarmas --> EstacionInteligente
+ProcesadorEvento ..> Evento
+
+@enduml

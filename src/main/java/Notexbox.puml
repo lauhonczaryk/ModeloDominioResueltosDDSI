@@ -1,0 +1,107 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Cliente {
+    nombre : String
+    direccion: String
+    ordenes: List<Orden>
+    carrito: Carrito
+}
+
+class Carrito {
+   - elementos: List<ItemCarrito>
+}
+
+class ItemCarrito{
+    - melodia: Melodia
+    - precio: Double
+    - cantidad: Integer
+}
+
+class Orden {
+    - cliente : Cliente
+    - direccion: String
+    - fabrica: Fabrica
+    - carrito: Carrito
+    - estado : List<Estado>
+    + EstadoActual(): Estado
+}
+
+class Estado{
+    tipoEstado: TiposEstado
+    fechaHora: LocalDateTime
+}
+
+enum TiposEstado {
+    PENDIENTE_ENTREGA,
+    PENDIENTE_FABRICACION,
+    ENTREGADA
+}
+
+class Catalogo {
+    - id: Long
+    - melodias: List<Melodia>
+    + agregarACatalogo(Melodia melodia)
+}
+
+class Fabrica {
+    - id: Long
+    - nombre : String
+    - contacto: String
+    - ordenes : List<Orden>
+    + Disponible(): Boolean
+}
+
+class Melodia {
+    - id: Long
+    - nombre : String
+    - precio : Double
+    - secuenciaMIDI: Long
+    + conversionSecuencia(): ScriptInstrucciones
+}
+
+interface ScriptInstrucciones {
+    +obtenerArchivoInstrucciones(archivoMIDI): String
+}
+
+class AdapterInstrucciones implements ScriptInstrucciones{
+    -script: Script
+    + AdapterInstrucciones(Script script)
+}
+
+class Script{
+ +conversionFormato(archivoMIDI) : String
+}
+
+class ManejoDeStock {
+    +hayStock(carrito): Boolean
+}
+
+interface AdapterAPIStock {
+    -api: APIStock
+    + AdapterAPIStock(APIStock api)
+}
+
+class APIStock implements AdapterAPIStock{
+ +validarStock(carrito) : Boolean
+}
+
+class Categoria{
+    -nombre: String
+    -melodias: List<Melodia>
+}
+
+Cliente *-- Orden
+Categoria --> Melodia
+Orden --> Fabrica
+Estado --> TiposEstado
+Orden --> Estado
+Cliente --> Carrito
+Carrito  --> Melodia
+Catalogo --> Categoria
+AdapterInstrucciones --> Script
+Melodia --> ScriptInstrucciones
+Carrito *-- ItemCarrito
+Orden --> ManejoDeStock
+ManejoDeStock --> AdapterAPIStock
+@enduml

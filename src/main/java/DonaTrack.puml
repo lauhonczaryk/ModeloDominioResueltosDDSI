@@ -1,0 +1,201 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Donante {
+    nombre: String
+    apellido: String
+    esPersonaJuridica: Boolean
+    razonSocial: RazonSocial
+}
+class RazonSocial {
+    nombre: String
+}
+
+class Donacion {
+    donante: Donante
+    descripcion: String
+    bienes: List<Bien>
+    estado: HistorialEstado
+    algoritmoElegido: AlgoritmoMatchMaking
+    entidadDestinataria: EntidadBeneficiaria
+    camionAsignado: Camion
+    fotosDonacionRecibida: List<String>
+    + estadoActual(): Estado
+}
+class HistorialEstado {
+    estado: Estado
+    fecha: LocalDateTime
+}
+enum Estado {
+    PENDIENTE_DE_RECEPCION,
+    EN_DEPOSITO,
+    LISTA_PARA_ENTREGAR,
+    ENTREGADA
+}
+
+class Bien {
+    categoria: Categoria
+    esUsado: Boolean
+    esPerecedero: Boolean
+    fechaVencimiento: LocalDateTime
+    cantidadDonada: Integer
+}
+
+class Categoria {
+    nombre: String
+    requiereConocerEstado: Boolean
+}
+
+class EntidadBeneficiaria {
+    tipoEntidad: TipoEntidad
+    razonSocial: RazonSocial
+    direccion: Direccion
+    telefono: String
+    correoRepresentante: String
+    necesidadesMateriales: List<NecesidadMaterial>
+}
+
+class TipoEntidad {
+    nombre: String
+}
+
+class Direccion {
+        calle: String
+        numero: Int
+        localidad: String
+        provincia: String
+        cp: String
+}
+
+class ValidadorRazonSocial {
+    + validar(String razonSocial): Boolean
+}
+
+interface IAdapterRNSC {
+    validar(RazonSocial razonSocial): Boolean
+}
+
+class RNSC {
+    validacion(String razonSocial): Boolean
+}
+
+class AdapterRNSC implements IAdapterRNSC {
+    rnsc: RNSC
+    validar(RazonSocial razonSocial): Boolean
+}
+
+class NecesidadMaterial {
+    categoria:Categoria
+    descripcion: String
+}
+
+interface AlgoritmoMatchMaking {
+    +rankearEntidades(Donacion d, List<EntidadBeneficiaria> e): List<EntidadBeneficiaria>
+}
+
+class CompMatch implements AlgoritmoMatchMaking {
+    +rankearEntidades(Donacion d, List<EntidadBeneficiaria> e): List<EntidadBeneficiaria>
+}
+
+class EquiReach implements AlgoritmoMatchMaking {
+    +rankearEntidades(Donacion d, List<EntidadBeneficiaria> e): List<EntidadBeneficiaria>
+}
+
+
+class Camion {
+    patente: String
+    capacidadVolumen: Double
+    alturaMetros: Double
+    capacidadKg: Double
+    sede: Direccion
+}
+
+class GeneradorPlanRutas {
+    ia: IAdapterRuthy
+    +generarPlan():
+}
+
+interface IAdapterRuthy {
+    hacerPlanificacion():
+}
+
+class AdapterRuthy implements IAdapterRuthy{
+    ruthy: Ruthy
+    hacerPlanificacion():
+}
+
+class Ruthy {
+    obtenerRutas(PromptOutputDTO prompt): RutasInputDTO
+}
+
+class PromptOutputDTO {
+    deposito: Deposito
+    entregas: List<Entrega>
+    camiones: List<Camion>
+    ventanaHorariaDesde: LocalDateTime
+    ventanaHorariaHasta: LocalDateTime
+}
+
+class Deposito {
+    lat: String
+    lon: String
+    direccion: String
+}
+
+class Entrega {
+    codEntrega: String
+    lat: String
+    lon: String
+    direccion: String
+    pesoKg: Double
+    VolumenMetrosCubicos: Double
+}
+
+class RutasInputDTO {
+    rutas: List<Ruta>
+}
+
+class Ruta {
+    camion: Camion
+    rutaNombre: String
+    fechaHoraInicio: LocalDateTime
+    fechaHoraFin: LocalDateTime
+    paradas: List<Parada>
+    distanciaTotalKM: Double
+    duracionTotalMin: Double
+}
+
+class Parada {
+    entrega: Entrega
+    llegadaEstimada: LocalDateTime
+}
+
+Donante --> RazonSocial
+Donacion --> HistorialEstado
+Donacion --> Bien
+Donacion --> Donante
+Bien --> Categoria
+NecesidadMaterial --> Categoria
+HistorialEstado --> Estado
+EntidadBeneficiaria --> TipoEntidad
+EntidadBeneficiaria --> Direccion
+EntidadBeneficiaria --> RazonSocial
+EntidadBeneficiaria --> NecesidadMaterial
+Donacion --> AlgoritmoMatchMaking
+Donacion --> EntidadBeneficiaria
+Donacion --> Camion
+Camion -->  Direccion
+GeneradorPlanRutas --> IAdapterRuthy
+GeneradorPlanRutas ..> RutasInputDTO
+GeneradorPlanRutas ..> PromptOutputDTO
+PromptOutputDTO  --> Camion
+PromptOutputDTO  --> Entrega
+PromptOutputDTO  --> Deposito
+Ruta --> Parada
+Ruta --> Camion
+RutasInputDTO  --> Ruta
+AdapterRNSC --> RNSC
+ValidadorRazonSocial --> IAdapterRNSC
+AdapterRuthy --> Ruthy
+
+@enduml

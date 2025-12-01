@@ -1,0 +1,65 @@
+@startuml
+node "Navegador Web" as browser {
+  component "cliente-liviano"
+}
+
+node "Nube pública" {
+  node "API Gateway" as gw {
+    component "api-gateway"
+  }
+
+  node "AuthService" as auth {
+    component "AuthService"
+    database "BD_Auth"
+  }
+
+  node "Agregador" as agg {
+    component "Agregador\n(REST/GraphQL)"
+    database "BD_Agregador"
+  }
+
+  node "ServicioEstadisticas" as stats {
+    component "ServicioEstadisticas"
+    database "BD_Estadisticas"
+  }
+
+  node "FuenteEstatica" as fe {
+    component "FuenteEstatica"
+    artifact "Dataset CSV"
+  }
+
+  node "FuenteDinamica" as fd {
+    component "FuenteDinamica"
+    database "BD_FuenteDinamica"
+  }
+
+  node "FuenteProxy" as fp {
+    component "FuenteProxy"
+    database "BD_FuenteProxy"
+  }
+
+  node "Servicio Externo" as ext
+
+}
+
+browser --> gw : HTTPS
+
+gw --> auth : REST /auth/*
+gw --> agg  : REST/GraphQL /agregador/*
+gw --> stats: REST /estadisticas/*
+gw --> fe   : REST /fuente-estatica/*
+gw --> fd   : REST /fuente-dinamica/*
+gw --> fp   : REST /fuente-proxy/*
+
+agg  --> fe  : REST/gRPC (MetaMapa)
+agg  --> fd  : REST/gRPC
+agg  --> fp  : REST/gRPC
+
+stats --> agg
+stats --> fe
+stats --> fd
+stats --> fp
+
+fp --> ext : REST
+
+@enduml

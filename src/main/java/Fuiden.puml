@@ -1,0 +1,111 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Producto {
+    nombre: String
+    descripcion: String
+    codigoEAN: String
+    codigoSKU: String
+    categoriasPrinicipales: List<Categoria>
+    tamaño: Tamaño
+}
+
+class Categoria {
+    nombre: String
+}
+
+enum Tamanio {
+   GRANDE, MEDIANO, CHICO
+}
+
+class Evento {
+    topico: Topico
+    fechaHora: LocalDateTime
+}
+enum Topico {
+    PEDIDOS, PAGOS,
+    PUBLICACION
+}
+class PedidoMELU{
+   id: Long
+       eventoQueLoGenero: Evento
+       pedidoMELU: Boolean
+       fecha: LocalDateTime
+       total: Double
+       moneda: Moneda
+       envio_id: Long
+       estadoActual: Estado
+       vendedor: Vendedor
+       itemsPedido: List<ItemPedido>
+}
+
+class Pedido {
+    id: Long
+    eventoQueLoGenero: Evento
+    pedidoMELU: PedidoMELU
+    fecha: LocalDateTime
+    total: Double
+    moneda: Moneda
+    envio_id: Long
+    estadoActual: Estado
+    vendedor: Vendedor
+    itemsPedido: List<ItemPedido>
+    historialEstados: List<HistorialEstado>
+     + asociarItems(): void
+           + obtenerEstado(): Estado
+}
+
+class ItemPedido {
+    cantidad: Int
+    precio_unitario: Double
+    producto: Producto
+}
+
+class Moneda{
+    id_moneda: Long
+    nombre: String
+}
+
+enum Estado{
+    PENDIENTE, COFNIRMADO,
+    RECHAZADO, STAND_BY,
+    DESPACHADO
+}
+
+class HistorialEstado {
+    estado: Estado
+    fecha: LocalDateTime
+}
+
+class Vendedor{
+    nombre: String
+}
+
+class Stock {
+    producto: Producto
+    cantidadDisponible: Int
+    fechaActualizacion: LocalDateTime
+    accion: AccionStock
+    pedidoQueLoGenero: Pedido
+    + registrarStock(Int cantidadModificar)
+}
+
+enum AccionStock {
+    INGRESO, EGRESO, AJUSTE
+}
+
+Producto --> Categoria
+Producto --> Tamanio
+Pedido --> Vendedor
+Pedido --> Estado
+Pedido --> Moneda
+Pedido -- ItemPedido
+ItemPedido --> Producto
+Pedido --> HistorialEstado
+HistorialEstado --> Estado
+Stock --> Producto
+Evento --> Topico
+Pedido --> Evento
+Stock --> AccionStock
+Pedido --> PedidoMELU
+@enduml

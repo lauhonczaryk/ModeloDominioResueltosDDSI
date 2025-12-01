@@ -1,0 +1,259 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Runner {
+    -nombre: String
+    -apellido: String
+    - peso: Integer
+    - altura: Integer
+    - edad: Integer
+    - tipoSangre: TipoSangre
+    - lesiones: List<Lesion>
+    - zapatillas: List<ZapatillaRunner>
+    - zapatillaFavorita: ZapatillaRunner
+
+    }
+class TipoSangre {
+-tipo: String
+}
+
+class Lesion {
+-especificacion: String
+}
+
+class ZapatillaRunner {
+    -zapatilla: TipoZapatilla
+    -añoAdquision: Integer
+    -talle: Talle
+- fotos: List<Fotografia>
+-cantKmRecorridos: Double
++ vidaUtil(): Double
+}
+
+class Talle {
+    -talleArg: Double
+    -talleUS: Double
+    -talleUK: Double
+}
+class TipoZapatilla {
+    -nombre:String
+    marca: Marca
+    modelo: Long
+}
+
+class Marca {
+-marca: String
+}
+
+class Travesia {
+    -nombre: String
+    -descripcion: String
+    -fotografias: List<Fotografia>
+    -nivelDificultad: NivelDificultad
+    -tipoTerreno: TipoTerreno
+    -duracionEstimada: DuracionEstimada
+    -distancia: Double
+    - puntoPartida: Ubicacion
+    - puntoLlegada: Ubicacion
+    - puntosApoyo: List<PuntoApoyo>
+
+}
+
+class DuracionEstimada {
+    - tipo: TipoDuracion
+    - DURACION: Integer
+}
+enum TipoDuracion {
+    HORAS,
+    DIAS
+}
+
+
+class TipoTerreno {
+    -nombre: String
+    -dificultad: nivelDificultad
+}
+
+enum NivelDificultad {
+    PRINCIPIANTE,
+    INTERMEDIO,
+    AVANZADO,
+    EXTREMO
+}
+
+
+class Fotografia {
+    path: String
+    descripcion: String
+}
+
+class PuntoApoyo {
+    -tipo: TipoPuntoApoyo
+    - descripcion: String
+    - ubicacion: Ubicacion
+    - fotografias: List<Fotografia>
+}
+
+class Ubicacion {
+    - latitud: Long
+    - longitud: Long
+}
+
+class TipoPuntoApoyo {
+    nombre: String
+}
+
+class PlanificacionFondo {
+    -fecha: LocalDateTime
+    - runner : Runner
+    - travesia: Travesia
+    - zapatilla: ZapatillaRunner
+    - necesidades: List<TipoPuntoApoyo>
+    - mochila: Mochila
+
+   }
+
+class Mochila {
+       + pesoMaxMochila(): Double
+}
+
+class RecomendarArticular {
+     + recomendarArticulos(pesoMax): List<Articulo>
+}
+
+interface Calculador {
+    + calcularPesoMaxMochila(runner, travesia): Integer
+}
+
+class CalculadorOptimista implements Calculador {
++ calcularPesoMaxMochila(runner, travesia): Integer
+}
+
+class CalculadorPesimista implements Calculador {
++ calcularPesoMaxMochila(runner, travesia): Integer
+}
+
+class CreadorSugerencias {
+         + generarPuntosVisitar(fondo): List<PuntoApoyo>
+         + generarPrecauciones(fondo): List<String>
+}
+
+class RecomendadorZapatillas {
+    - adapterTechShoes: IAdapterTechShoes
+    - notificador: INotificador
+    + recomendarZapatillas(runner): Void
+}
+
+interface IAdapterTechShoes {
+    + pedirRecomendacion(zapatillas): DTORecomendacionZapatillas
+}
+
+class AdapterTechShoes implements IAdapterTechShoes {
+     + pedirRecomendacion(zapatillas): DTORecomendacionZapatillas
+}
+
+class APITechShoes {
+    + recomendar(): List<Map<String, Object>>
+}
+
+class Articulo {
+    -nombre: String
+    -peso: Double
+    -categoria: Cateogria
+}
+
+class Cateogria {
+    -nombre: String
+}
+
+interface INotificador {
+    + notificar(Mensaje mensaje, Contacto contacto): Void
+}
+class NotificadorWpp implements INotificador {
+- wpp: Whatsapp
+        + notificar(Mensaje mensaje, Contacto contacto): Void
+}
+class Whatsapp {
+    + enviarmMnsaje()
+}
+
+class Mensaje {
+    mensaje: String
+}
+
+class Contacto {
+    email: String
+    telefono: String
+}
+
+class FormFeedback {
+    - puntaje: Puntaje
+    - preguntas: List<Pregunta>
+}
+
+class Pregunta {
+    pregunta: String
+}
+
+class FeebackContestado {
+    - feedback: FormFeedback
+    - viaje: PlanificacionFondo
+    - puntajoDado: Puntaje
+    - respuestas: List<Respuesta>
+}
+
+class Respuesta {
+    pregunta: Pregunta
+    respuesta: String
+}
+
+enum Puntaje {
+    EXCELENTE,
+    IMTERMEDIO,
+    BUENO,
+    DEBERIA_MEJORAR
+}
+
+
+Runner --> TipoSangre
+Runner --> ZapatillaRunner
+Runner --> Lesion
+ZapatillaRunner-->Talle
+ZapatillaRunner --> TipoZapatilla
+TipoZapatilla --> Marca
+Travesia --> TipoTerreno
+Travesia --> NivelDificultad
+Travesia --> Fotografia
+ZapatillaRunner --> Fotografia
+Travesia  -->DuracionEstimada
+DuracionEstimada  --> TipoDuracion
+ Travesia  --> PuntoApoyo
+ PuntoApoyo  --> TipoPuntoApoyo
+PuntoApoyo --> Fotografia
+PlanificacionFondo -->Runner
+PlanificacionFondo --> ZapatillaRunner
+PlanificacionFondo --> TipoPuntoApoyo
+CreadorSugerencias --> PuntoApoyo
+RecomendadorZapatillas --> IAdapterTechShoes
+AdapterTechShoes --> APITechShoes
+Runner ..> RecomendadorZapatillas : usa
+PlanificacionFondo ..> CreadorSugerencias : usa
+PlanificacionFondo ..> RecomendarArticular : usa
+PlanificacionFondo--> Mochila
+Runner --> Calculador
+Articulo--> Cateogria
+Runner..> PlanificacionFondo : usa
+CreadorSugerencias ..> INotificador : usa
+RecomendadorZapatillas ..> INotificador : usa
+PlanificacionFondo --> Articulo
+INotificador  --> Mensaje
+INotificador -->Contacto
+NotificadorWpp  --> Whatsapp
+PuntoApoyo --> Ubicacion
+FormFeedback --> Pregunta
+FeebackContestado -->  Runner
+FeebackContestado --> FormFeedback
+FeebackContestado -->  Respuesta
+Respuesta -->  Pregunta
+
+@enduml

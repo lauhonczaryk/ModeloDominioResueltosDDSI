@@ -1,0 +1,161 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Entidad {
+    - denomicacionLegal: String
+    - demoraAproximada: Double
+    - fechaAltaIGJ: LocalDateTime
+    - fechaAltaSist: LocalDateTime
+    - tramites: List<Tramites>
+    - solicitudes: List<SolicitudTramite>
+    - mailResponsables: List<String>
+    - accion: AccionCambioEstado
+    + accionar(Estado nuevoEstado): Void
+}
+
+class Tramite {
+    - nombre: String
+    - codigo: String
+    - tiempoEsimadResolucion: Integer
+    - formulariosAsociados: List<Formulario>
+    - recargoPlataforma: Double
+    + costoTotal(): Double
+}
+
+class Formulario {
+    - campos: List<Campo>
+    - costo: Double
+   - fechaAlta: LocalDateTime
+    - vencimiento: LocalDateTime
+   - cantRenovaciones: Integer
+   - vencido: Boolean
+
+}
+
+class GestorFormularios {
+    formularios: List<Formulario>
+    + notificarFormularioVencido(String mailEntidad, String mensaje): Void
+}
+
+class Campo {
+    - tipo: TipoCampo
+    - obligatorio: Boolean
+     - opciones: List<String>
+}
+class TipoCampo {
+    - texto: String
+
+}
+
+interface INotificador {
+    + notificar(mensaje, contacto)
+}
+
+class Persona {
+    - nombre: String
+    - dni: String
+   -  email: String
+}
+
+class SolicitudTramite {
+    - tramite: Tramite
+    - persona: Persona
+    - estadoActual: Estado
+    - historialEstados: List<HistorialSolicitud>
+    - formulariosContestados: List<FormularioContestado>
+    + agregarEstado(HistorialSolicitud nuevoEstado)
+}
+
+class FormularioContestado {
+    - formulario: Formulario
+    - respuestas: List<Respuesta>
+}
+
+class Respuesta {
+   - pregunta: Campo
+    - opcionesSeleccionadas: List<String>
+    - valorContestado: String
+}
+
+class HistorialSolicitud {
+    - estado: Estado
+    - motivo: String
+    - fechaHora: LocalDateTime
+    - archivos: List<Archivo>
+}
+
+class Archivo {
+    path: String
+    textoAlt: String
+}
+
+enum Estado {
+    PENDIENTE_REVISION,
+    DIFERIDO
+    ACEPTADO
+    RECHAZADO
+}
+
+interface AccionCambioEstado {
+    + accionar()
+}
+
+class EnviarMail implements AccionCambioEstado{
+    + accionar(String Mensaje, String Mail)
+}
+
+class EnviarAlerta implements AccionCambioEstado {
+    - destinatario: String
+    + accionar(String Mensaje, String Mail)
+}
+
+class LlamarAPI implements AccionCambioEstado {
+    - metodo: MetodosHTTP
+    - url: String
+    - body: Map<String, Formulario>
+    - adapter: IAdapterAPI
+}
+
+interface IAdapterAPI {
+    + enviarDatos(Map<String, Formulario> body, String URL)
+}
+
+class AdapterAPI implements IAdapterAPI{
+    + enviarDatos(Map<String, Formulario> body, String URL)
+}
+
+class API {
+    + llamar()
+}
+
+enum MetodosHTTP {
+    GET,
+    POST
+}
+
+class Configurador {
+    +configurarAcciones()
+}
+
+Entidad --> Tramite
+Tramite --> Formulario
+Formulario --> Campo
+Campo --> TipoCampo
+GestorFormularios ..> INotificador
+SolicitudTramite --> Tramite
+SolicitudTramite ..> INotificador
+HistorialSolicitud --> Archivo
+SolicitudTramite --> HistorialSolicitud
+SolicitudTramite --> Estado
+HistorialSolicitud --> Estado
+Entidad --> SolicitudTramite
+EnviarMail ..> INotificador
+LlamarAPI --> IAdapterAPI
+AdapterAPI --> API
+LlamarAPI --> MetodosHTTP
+SolicitudTramite --> Persona
+Entidad --> AccionCambioEstado
+SolicitudTramite --> FormularioContestado
+FormularioContestado --> Respuesta
+
+@enduml

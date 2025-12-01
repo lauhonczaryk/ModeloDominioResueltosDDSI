@@ -1,0 +1,165 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Organizacion
+ {
+ - nombreLegal: String
+ - cuit: String
+ - tipoOrganizacion: TipoOrganizacion
+ - sede: Direccion
+ - contacto: Contacto
+ - areasTematicas: List<AreaTematica>
+ - descripcion: String
+ - necesidadesTecnologicas: List<NecesidadTecnologica>
+ }
+ class Contacto {
+    -telefono: String
+    - mail: String
+ }
+ class TipoOrganizacion {
+    tipo: String
+
+ }
+class AreaTematica {
+    -area: String
+}
+ class Direccion {
+    - calle: String
+    - nro: Int
+    - localidad: String
+    - pais: String
+ }
+ interface ValidadorCuitArca{
+    +validar(String cuit): Boolean
+ }
+
+ class AdapterArca implements ValidadorCuitArca{
+    +validar(String cuit): Boolean
+ }
+ class ARCA {
+    +validarCuit(String cuit): Boolean
+ }
+
+class NecesidadTecnologica {
+    - descripcion: String
+    - estadoActual: Estado
+    - historialCambios: List<EstadoSolicitud>
+    - activa: Boolean
+    - descripcion: String
+}
+
+class HistorialEstado {
+    -fecha: LocalDateTime
+    -autor: String
+    -nuevoEstado: Estado
+}
+
+class Estado {
+    tipo: TipoEstado
+    motivo: String
+}
+enum TipoEstado{
+    PENDIENTE,
+    REVISION,
+    ACEPTADA,
+    RECHAZADA,
+    CERRADA,
+    COMPLETADA
+}
+
+class Hackaton {
+    - realizada: Boolean
+    - organizacion: Organizacion
+    - fecha: LocalDateTime
+    - ubicacion: Direccion
+    - cantEstimadaParticipantes: Int
+    - nivelExperienciaParticipantes: NivelParticipante
+    - objetivos: String
+    - stackPlanteado: StackTecnologico
+    - duracion: Int
+    - historialModificaciones: List<String>
+    - necesidadElegida: NecesidadTecnologica
+    - multimedia: List<Multimedia>
+    - comentarios: List<Comentario>
+    - stackUsado: StackTecnologico
+    - feedback: String
+}
+class Comentario {
+    -autor: String
+    - contenido: String
+}
+class Multimedia {
+    path: String
+    descripcion: String
+}
+enum NivelParticipante {
+    PRINCIPANTE,
+    INTERMEDIO,
+    AVANZADO
+}
+
+class StackTecnologico {
+}
+
+class MatchMaking {
+    - evento: Hackaton
+    - ongs : List<Organizacion>
+    - algoritmos: List<AlgoritmoMatchMaking>
+    + implementarAlgoritmos(): NecesidadTecnologica
+    + notificar(Notificador notificador): void
+}
+
+interface AlgoritmoMatchMaking {
+    + matchear(Hackaton evento, List<Organizacion> ongs): NecesidadTecnologica
+}
+
+class MatchPorComplejidad implements AlgoritmoMatchMaking {
+    - adapterOpenAi: IAdapterOpenAI
+    + matchear(Hackaton evento, List<Organizacion> ongs)): NecesidadTecnologica
+}
+
+class MatchUbicacion implements AlgoritmoMatchMaking {
+    + matchear(Hackaton evento, List<Organizacion> ongs)): NecesidadTecnologica
+}
+
+ interface IAdapterOpenAI{
+    +determinarComplejidad(Hackaton evento, List<NecesidadTecnologica> necesidades)
+ }
+
+ class AdapterOpenAI implements IAdapterOpenAI{
+    +determinarComplejidad(Hackaton evento, List<NecesidadTecnologica> necesidades)
+ }
+ class OpenAI {
+    +analizarDatos(Hackaton evento, List<NecesidadTecnologica> necesidades)
+ }
+
+ interface Notificador {
+    + notificar(Contacto contacto, String mensaje): void
+ }
+
+ class EmailSender implements Notificador {
+    + notificar(String email, String notificacion): void
+ }
+
+ Organizacion --> Contacto
+ Organizacion --> TipoOrganizacion
+  Organizacion --> AreaTematica
+   Organizacion --> Direccion
+      Organizacion --> ValidadorCuitArca
+AdapterArca -->  ARCA
+ Organizacion --> NecesidadTecnologica
+ NecesidadTecnologica  --> Estado
+ Estado  --> TipoEstado
+  NecesidadTecnologica  --> HistorialEstado
+  Hackaton --> NivelParticipante
+  Hackaton --> StackTecnologico
+  Hackaton --> Direccion
+   Hackaton --> Multimedia
+     Hackaton --> Comentario
+     Hackaton -- MatchMaking
+MatchMaking-->AlgoritmoMatchMaking
+MatchPorComplejidad --> IAdapterOpenAI
+AdapterOpenAI --> OpenAI
+MatchMaking  --> Notificador
+     NecesidadTecnologica -- MatchMaking
+@enduml

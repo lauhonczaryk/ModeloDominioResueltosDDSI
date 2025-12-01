@@ -1,0 +1,177 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Persona {
+    nombre: String
+    apellido: String
+    genero: String
+    medioElegidoParaNotificaciones: List<MedioNotificaciones>
+    correoElectronico: String
+    wpp: String
+    preferenciaspersonales:List<PreferenciaPersonal>
+}
+class GrupoAmigos {
+    admin: Persona
+    participantes: List<Persona>
+    fechaQueSeRegalan: LocalDateTime
+}
+
+enum MedioNotificaciones {
+    CORREO, WHATSAPP
+}
+
+class PreferenciaPersonal {
+    persona: Persona
+    categoria: CategoriaNombre
+    respuestas: List<RespuestaPreferencia>
+}
+
+class CuestionarioPreferencias {
+    categorias: List<Categoria>
+}
+
+class Categoria {
+    nombre: CategoriaNombre
+    preguntas: List<SubCategoria>
+}
+enum CategoriaNombre {
+    MUSICALES,
+    GASTRONOMICAS,
+    COLORES,
+    VIAJES,
+    AROMAS
+}
+class SubCategoria {
+    subcategoriaPregunta: String
+}
+
+class RespuestaPreferencia {
+    pregunta: SubCategoria
+    respuestas: List<String>
+}
+
+class AsignadorAmigosInvisibles {
+    +asignar(GrupoAmigos grupo): List<Asignacion>
+}
+
+interface INotificador {
+    +enviar(String mensaje, String contacto): void
+}
+
+class NotificadorMail implements INotificador {
+    mail: Mail
+   +enviar(String mensaje, String contacto): void
+}
+
+class NotificadorWhatsapp implements INotificador {
+    wpp: WHATSAPP
+   +enviar(String mensaje, String contacto): void
+}
+
+class Mail {
+    +enviar(String mensaje, String contacto): void
+
+}
+
+class WHATSAPP {
+    +enviar(String mensaje, String contacto): void
+
+}
+
+class Asignacion {
+    grupoPerteneciente: GrupoAmigos
+    personaQueRegala: Persona
+    amigoInvisible: Persona
+    fechaHora: LocalDateTime
+}
+
+class RegaloPerfecto {
+    personaARegalar: Persona
+    regalosRecomendados: List<Regalo>
+    regaloElegido: Regalo
+    recomendacionAdquisicion: String
+}
+
+class CalculadorRegalo {
+    + elegirRegalo(PreferenciaPersonal preferencia): Regalo
+}
+
+interface IAdapterAlgoritmo {
+    recomendarRegalo(PreferenciaPersonal pref): Regalo
+}
+
+class AdapterAlgoritmo implements IAdapterAlgoritmo {
+    algoritmos: Algoritmo
+    recomendarRegalo(PreferenciaPersonal pref): Regalo
+}
+
+class Algoritmo {
+    procesarPreferencia(preferenciaDTO): regaloDTO
+}
+
+class RecomedadorAdquisicionRegalo {
+    + generarRecomendacion(Regalo regalo): String
+}
+
+interface IAdapterOpenAI {
+     + recomendacionAdquisicion(Regalo regalo): String
+}
+
+class AdapterOpenAI implements IAdapterOpenAI {
+    ai: OpenAI
+     + recomendacionAdquisicion(Regalo regalo): String
+}
+
+class OpenAI {
+    + generarDetalleAdquisicion(regaloDTO): String
+}
+
+class Regalo {
+    regalo: String
+}
+
+class Feedback {
+dadoPor: Persona
+    regaloAsignado: RegaloPerfecto
+    fechaHora: LocalDateTime
+    feedback: EscalaSatisfaccion
+}
+enum EscalaSatisfaccion {
+    MUY_ACERTADO,
+    ACERTADO,
+    ACEPTABLE
+    FUE_CUALQUIER_COSA
+}
+
+Categoria --> SubCategoria
+Categoria --> CategoriaNombre
+RespuestaPreferencia --> SubCategoria
+PreferenciaPersonal --> RespuestaPreferencia
+PreferenciaPersonal --> Persona
+CuestionarioPreferencias  --> Categoria
+GrupoAmigos  --> Persona
+GrupoAmigos  --> Persona
+Asignacion --> Persona
+Asignacion --> Persona
+Asignacion --> GrupoAmigos
+AsignadorAmigosInvisibles ..> GrupoAmigos
+NotificadorMail --> Mail
+NotificadorWhatsapp --> WHATSAPP
+AsignadorAmigosInvisibles ..> INotificador
+AdapterAlgoritmo --> Algoritmo
+CalculadorRegalo --> IAdapterAlgoritmo
+Persona --> MedioNotificaciones
+RecomedadorAdquisicionRegalo --> IAdapterOpenAI
+AdapterOpenAI --> OpenAI
+CalculadorRegalo  ..> Regalo
+RecomedadorAdquisicionRegalo ..> Regalo
+Asignacion  --> Regalo
+Feedback-->  EscalaSatisfaccion
+Feedback --> RegaloPerfecto
+RegaloPerfecto --> Persona
+RegaloPerfecto --> Regalo
+RegaloPerfecto --> Regalo
+Feedback --> Persona
+
+
+@enduml

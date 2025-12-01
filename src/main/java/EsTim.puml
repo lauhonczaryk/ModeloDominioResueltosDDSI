@@ -1,0 +1,118 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Juego {
+    nombre: String
+    tecnico: AspectoTecnico
+    genero: Genero
+    precio: Double
+    caracteristicas: List<AtributoJuego>
+    juegoAlQuePertenece: Juego
+    + esDCL(): Boolean
+}
+
+class AspectoTecnico {
+    requerimientosCPU: List<String>
+    memoria: String
+    almacenamiento: Double
+    unidadAlmacenamiento: String
+}
+
+class Genero {
+    nombre: String
+    atributos: List<Atributo>
+}
+
+class Atributo{
+    nombre: String
+    obligatorio: Boolean
+}
+
+class AtributoJuego {
+    atributo: Atributo
+    valor: String
+}
+
+
+
+
+class Compra {
+    usuario: Usuario
+    juegoAdquirido: Juego
+    valorCompra: Double
+    fecha: LocalDateTime
+    medioPago: MedioDepago
+}
+
+class MedioDePago {
+    nombre: String
+}
+
+class Prestamo {
+    juegoPrestado: Juego
+    usuarioPrestador: Usuario
+    conocido: Usuario
+    fechaPrestamo: LocalDateTime
+    fechaLimite: LocalDateTime
+}
+
+class Usuario {
+    nombre: String
+    apellido: String
+    username: String
+    mail: String
+    sospechosaDeFraude: Boolean
+}
+
+class DetectorFraude {
+    accionador: Accionar
+    algoritmo: AlgoritmoFraude
+    + analizarPrestamos(): List<Usuario>
+}
+
+interface AlgoritmoFraude {
+    + ejecutarAlgoritmo(List<Prestamo> prestadores): List<Usuario>
+}
+
+class MultiplesPrestamosMismoUsuario implements AlgoritmoFraude {
+    cantPrestamosLimite: Int
+    +ejecutarAlgoritmo(List<Prestamo> prestadores): List<Usuario>
+}
+
+class MultiplesPrestamos implements AlgoritmoFraude {
+    cantPrestamosLimite: Int
+    +ejecutarAlgoritmo(List<Prestamo> prestadores): List<Usuario>
+}
+
+class PrestamosExtensos implements AlgoritmoFraude {
+    cantAniosMax: Int
+    +ejecutarAlgoritmo(List<Usuario> prestadores): List<Usuario>
+}
+
+class Accionador {
+    acciones: List<Accion>
+    + ejecutarAcciones(Usuario usuario): void
+     + agregarAccion(Accion accion): void
+      + eliminarAccion(Accion accion): void
+}
+
+interface Accion {
+    + accionar(Usuario usuario): void
+}
+
+Juego --> AspectoTecnico
+Juego --> Juego
+Juego --> AtributoJuego
+AtributoJuego --> Atributo
+Juego --> Genero
+Genero --> Atributo
+Prestamo --> Usuario
+Prestamo --> Juego
+Compra --> MedioDePago
+DetectorFraude --> AlgoritmoFraude
+DetectorFraude --> Usuario
+DetectorFraude --> Usuario
+Compra --> Usuario
+Accionador ..> Usuario
+Accionador --> Accion
+@enduml

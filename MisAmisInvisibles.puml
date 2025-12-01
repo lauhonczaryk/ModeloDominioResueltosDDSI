@@ -90,6 +90,7 @@ class RegaloPerfecto {
     regalosRecomendados: List<Regalo>
     regaloElegido: Regalo
     recomendacionAdquisicion: String
+    feedback: Feedback
 }
 
 class CalculadorRegalo {
@@ -131,7 +132,7 @@ class Regalo {
 }
 
 class Feedback {
-dadoPor: Persona
+    dadoPor: Persona
     regaloAsignado: RegaloPerfecto
     fechaHora: LocalDateTime
     feedback: EscalaSatisfaccion
@@ -141,6 +142,18 @@ enum EscalaSatisfaccion {
     ACERTADO,
     ACEPTABLE
     FUE_CUALQUIER_COSA
+}
+
+class GeneradorEstadisticas {
+    +generarEstadisticas(List<RegaloPerfecto>), PreferenciaPersonal): Estadistica
+}
+
+class Estadistica {
+    grupo: GrupoAmigos
+    regaloMasSugerido: Regalo
+    regaloMasAcertado: Regalo
+    preferenciasPopulares: List<PreferenciaPersonal>
+    fecha: LocalDateTime
 }
 
 Categoria --> SubCategoria
@@ -172,6 +185,7 @@ RegaloPerfecto --> Persona
 RegaloPerfecto --> Regalo
 RegaloPerfecto --> Regalo
 Feedback --> Persona
-
+RegaloPerfecto --> RegaloPerfecto
+GeneradorEstadisticas ..> Estadistica
 
 @enduml

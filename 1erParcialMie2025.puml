@@ -1,0 +1,240 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+package "Servicio de Ciudadanos y Perfil Sanitario" {
+
+class Ciudadano {
+    nombre: String
+    apellido: String
+    dni: String
+    mail: String
+    direccionPrincipal: Direccion
+    direccionSeundaria: Direccion
+    historialDirecciones: List<HistorialDirecciones>
+}
+
+class Direccion {
+    calle: String
+    numero: Integer
+    coordenadas: Coordenada
+    barrio: Barrio
+    tipoZona: TipoZona
+}
+
+class HistorialDirecciones {
+    direccion: Direccion
+    descripcion: String
+    fecha: LocalDateTime
+    motivoCambio: String
+}
+
+class Barrio {
+    nombre: String
+}
+class Coordenada {
+    latitud: String
+    longitud: String
+}
+
+class TipoZona {
+    tipo: String
+}
+
+class PerfilSanitario {
+    ciudadano: Ciudadano
+    grupoEtario: GrupoEtario
+    vacunacion: List<Vacuna>
+    factoresRiesgo: List<FactorRiesgo>
+    ultimaActualizacion: LocalDateTime
+}
+
+class GrupoEtario {
+    descripcion: String
+    minimo: Integer
+    maximo: Integer
+}
+
+class Vacuna {
+    tipoVacuna: TipoVacuna
+    estado: EstadoVacuna
+    fechaUltimaDosis: LocalDateTime
+}
+class TipoVacuna {
+    tipo: String
+}
+enum EstadoVacuna {
+    COMPLETA,
+    INCOMPLETA,
+    VENCIDA
+}
+class FactorRiesgo {
+    nombre: String
+    tipoEventoSanitario: TipoEventoSanitario
+    gradoSensibilidad: GradoSensibilidad
+}
+
+class TipoEventoSanitario {
+    RESPIRATORIO,
+    AMBIENTAL,
+    ALIMENTARIO
+}
+enum GradoSensibilidad {
+    LEVE,
+    MODERADO,
+    ALTO
+}
+
+class BuscadorCiudadanos {
+    +buscarCiudadanos(Direccion direccion, EstrategiaBusqueda e): List<Ciudadano>
+}
+
+interface EstrategiaBusqueda {
+    +calculoCercania(direccion): List<Ciudadano>
+}
+
+class CalculoPorRadio implements EstrategiaBusqueda {
+    centro: Coordenada
+    radioKM: Double
+    +calculoCercania(direccion): List<Ciudadano>
+}
+
+class CalculoPorZona implements EstrategiaBusqueda {
+    barriosCriticos: List<Barrio>
+    +calculoCercania(direccion): List<Ciudadano>
+}
+
+class CalculoPorInterseccion implements EstrategiaBusqueda {
+    areasAfectadas: List<Coordenada>
+    +calculoCercania(direccion): List<Ciudadano>
+}
+
+Ciudadano --> Direccion
+Ciudadano --> Direccion
+Direccion --> Barrio
+Direccion --> Coordenada
+Direccion --> TipoZona
+PerfilSanitario --> Vacuna
+Vacuna --> TipoVacuna
+Vacuna --> EstadoVacuna
+PerfilSanitario --> Ciudadano
+Ciudadano --> HistorialDirecciones
+PerfilSanitario --> FactorRiesgo
+PerfilSanitario --> GrupoEtario
+FactorRiesgo -->TipoEventoSanitario
+FactorRiesgo --> GradoSensibilidad
+BuscadorCiudadanos  ..> EstrategiaBusqueda
+BuscadorCiudadanos ..> Ciudadano
+}
+
+package "Servicio de Alertas Sanitarias" {
+class Evento {
+    tipoEventoSanitario: TipoEventoSanitario
+    fechaInicio: LocalDateTime
+    barrio: idBarrio
+    nivel: NivelEvento
+}
+
+class TipoEventoSanitario {
+    RESPIRATORIO,
+    AMBIENTAL,
+    ALIMENTARIO
+}
+
+enum NivelEvento {
+    ALTO,
+    CRITICO,
+    EXTREMO
+}
+
+class ProcesarEventos {
+    procesarEvento(evento): void
+}
+
+interface ActuadorAnteEvento{
+    +actuar(Evento evento): void
+}
+
+class GeneradorRecomendaciones implements ActuadorAnteEvento{
+   + actuar(Evento evento): void
+}
+interface IAdapterGPT4 {
+    +enriquecerRecomendaciones(evento, ciudadano)
+}
+
+class EnviadorAlertas implements ActuadorAnteEvento{
+notificadores: List<INotificador>
+    +actuar(Evento evento): void
+}
+
+interface INotificador {
+    notificar(mensaje, contacto): void
+}
+
+class NotificadorMail implements INotificador{
+    mail: SMTP
+    notificar(mensaje, contacto): void
+}
+
+class NotificadorPush implements INotificador{
+    notificar(mensaje, contacto): void
+}
+
+class AlertarOrganismosExternos implements ActuadorAnteEvento{
+    organismos: List<OrganismosExternos>
+    +actuar(Evento evento): void
+}
+
+class ActivarAlarmasFisicas implements ActuadorAnteEvento{
+    +actuar(Evento evento): void
+}
+
+
+interface IAdapterServicioCiudadanos {
+    +obtenerCiudadanos(ubicacion, List<String> factores): List<Ciudadano>
+}
+
+class AdapterServicioCiudadanos implements IAdapterServicioCiudadanos {
+    servicio: ServicioCiudadanos
+    + obtenerCiudadanos(ubicacion, List<String> factores): List<Ciudadano>
+}
+
+class ServicioCiudadanos {
+    +buscarCiudadanos(ubicacion, estrategia)
+}
+
+class OrganismosExternos {
+    nombre: String
+    callback: String
+    +notificar(evento)
+}
+
+interface IAdapterServicioEstaciones {
+    +activarAlarmasFisicas(nivel, duracion, componentes): void
+}
+
+class AdapterServicioEstaciones implements IAdapterServicioEstaciones {
+    servicio: ServicioEstaciones
+     +activarAlarmasFisicas(nivel, duracion, componentes): void
+}
+
+class ServicioEstaciones {
+    +activar(ubicacion, estrategia)
+}
+
+GeneradorRecomendaciones ..> IAdapterServicioCiudadanos
+AdapterServicioCiudadanos --> ServicioCiudadanos
+Evento --> TipoEventoSanitario
+Evento --> NivelEvento
+ActuadorAnteEvento ..> Evento
+GeneradorRecomendaciones ..> IAdapterGPT4
+EnviadorAlertas ..> IAdapterServicioCiudadanos
+AlertarOrganismosExternos --> OrganismosExternos
+ActivarAlarmasFisicas ..> IAdapterServicioEstaciones
+AdapterServicioEstaciones --> ServicioEstaciones
+ProcesarEventos --> ActuadorAnteEvento
+EnviadorAlertas --> INotificador
+
+
+}
+
+@enduml

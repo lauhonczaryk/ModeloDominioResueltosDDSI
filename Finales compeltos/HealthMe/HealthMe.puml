@@ -1,0 +1,194 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+package "Servicio I - Personas Usuarias" {
+class Persona {
+    nombre: String
+    apellido: String
+    edad: Integer
+    direccion: Direccion
+    alturaCm: Double
+    pesoKg: Double
+    realizaActividadFisica: Boolean
+    actOcio: List<ActividadOcio>
+    objetivos: List<Objetivo>
+}
+class Direccion {
+    calle: String
+    numero: String
+    localidad: String
+    codigoPostal: String
+}
+
+class ActividadOcio {
+    nombre: String
+}
+
+class Pregunta {
+    actividadOcio: actividadOcio
+    enunciado: String
+}
+
+class Respuesta {
+    persona: Persona
+    pregunta: Pregunta
+    valor: String
+}
+
+class ObjetivoPersona {
+    objetivo: Objetivo
+    prioridad: Integer
+    fechaInicio: LocalDateTime
+    dimension: Dimension
+    seCumplio: Boolean
+    fechaFinalizacion: LocalDateTime
+    idProfesionalAsignado: Long
+}
+
+class Objetivo {
+    descripcion: String
+}
+
+enum Dimension {
+SALUD_FISICA,
+SALUD_MENTAL
+    }
+
+interface IAdapterServicioRecomendaciones {
+    +pedirRecomendaciones(List<Objetivo>): List<RecomendacionDTO>
+}
+
+class AdapterServicioRecomendaciones implements IAdapterServicioRecomendaciones {
+    recomendador: ServicioRecomendaciones
+     +pedirRecomendaciones(List<Objetivo>): List<RecomendacionDTO>
+}
+
+class ServicioRecomendaciones {
+     +recomendar(List<ObjetivoDTO>): List<RecomendacionDTO>
+}
+
+interface IAdapterServicioProfesionles {
+    +pedirProfesional(idProfesional): ProfesionalDTO
+}
+
+class AdapterServicioProfesionales implements IAdapterServicioProfesionles {
+    servicio: ServicioProfesionales
+     +pedirProfesional(idProfesional): ProfesionalDTO
+}
+
+class ServicioProfesionales {
+     +obtenerProfesional(profesionalID): ProfesionalDTO
+}
+
+Persona --> ActividadOcio
+Pregunta  --> ActividadOcio
+Respuesta  --> Pregunta
+Persona --> Direccion
+Respuesta  --> Persona
+ObjetivoPersona --> Dimension
+Persona --> ObjetivoPersona
+ObjetivoPersona -->  Objetivo
+AdapterServicioRecomendaciones --> ServicioRecomendaciones
+AdapterServicioRecomendaciones ..> Persona
+Objetivo ..> IAdapterServicioProfesionles
+AdapterServicioProfesionales --> ServicioProfesionales
+}
+
+package "Servicio III - Profesionales" {
+class Profesional {
+    nombre: String
+    apellido: String
+    matricula: MatriculaValidacion
+    direccionConsultorio: Direccion
+    correo: String
+    modalidadAtencion: ModalidadAtencion
+    +estaActivo(): Boolean
+}
+
+
+enum ModalidadAtencion {
+VIRTUAL, PRESENCIAL
+}
+
+class Direccion {
+    calle: String
+    numero: String
+    localidad: String
+    codigoPostal: String
+}
+
+class ValidadorMatricula{
+    + validarMatriculaProfesional(matricula): MatriculaValidacion
+}
+
+interface IAdapterMinisterioSalud {
+    +validarMatricula(String matricula): MatriculaValidacion
+}
+
+class AdapterMinisterioSalud implements IAdapterMinisterioSalud {
+    ministerio: MinisterioSalud
+    +validarMatricula(String matricula): MatriculaValidacion
+}
+
+class MinisterioSalud {
+     +validacion(matricula): MatriculaValidacionDTO
+}
+
+class MatriculaValidacion {
+    matricula: String
+    valida: Boolean
+    fechaValidez: LocalDateTime
+}
+
+Profesional --> ModalidadAtencion
+Profesional --> Direccion
+Profesional --> MatriculaValidacion
+AdapterMinisterioSalud --> MinisterioSalud
+ValidadorMatricula ..> Profesional
+ValidadorMatricula ..> MatriculaValidacion
+ValidadorMatricula ..>  IAdapterMinisterioSalud
+}
+
+
+package "Servicio IV - Asignacion de profesionales" {
+class Profesional {
+    nombre: String
+    apellido: String
+    matricula: String
+    direccionConsultorio: Direccion
+    modalidadAtencion: ModalidadAtencion
+}
+
+class Direccion {
+    calle: String
+    numero: String
+    localidad: String
+    codigoPostal: String
+}
+
+class Asignador {
+    criterioAsignacion: CriterioAsignacion
+    +asignar(interesadoDTO): List<Profesional>
+}
+
+interface CriterioAsignacion {
+    opcionesAEntregar: Integer
+   + encontrarProfesionales(interesadoDTO): List<Profesional>
+}
+
+class CriterioCercania implements CriterioAsignacion {
+    cercaniaKm: Double
+    +encontrarProfesionales(interesadoDTO): List<Profesional>
+}
+
+class CriterioAfinidad implements CriterioAsignacion {
+    +encontrarProfesionales(interesadoDTO): List<Profesional>
+}
+
+
+Profesional --> Direccion
+Asignador --> CriterioAsignacion
+Asignador .. Profesional
+}
+
+@enduml
